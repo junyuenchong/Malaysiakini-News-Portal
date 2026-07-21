@@ -1,0 +1,30 @@
+/* Main content area — fills viewport below header/footer */
+.main-content {
+  min-height: calc(100dvh - 7.5rem);
+  overflow-x: hidden;
+}
+
+/* Site footer */
+.site-footer {
+  background: #111;
+  color: #aaa;
+  padding: 1.25rem 0 calc(1.25rem + env(safe-area-inset-bottom));
+  font-size: 0.875rem;
+}
+
+.site-footer p {
+  margin: 0;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    /* Mobile header is top bar only (nav overlays when open) */
+    min-height: calc(100dvh - 4rem);
+  }
+
+  .site-footer {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+}

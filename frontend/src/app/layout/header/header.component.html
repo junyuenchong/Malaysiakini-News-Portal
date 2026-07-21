@@ -1,0 +1,61 @@
+<!-- Site header: red top bar + dark category nav -->
+<header class="site-header">
+  <!-- Logo + mobile hamburger -->
+  <div class="header-top">
+    <div class="container header-top__inner">
+      <a routerLink="/" class="logo" (click)="closeMobileMenu()">
+        <span class="logo__mark">MK</span>
+        <span class="logo__text">News Portal</span>
+      </a>
+      <button
+        type="button"
+        class="menu-toggle"
+        [attr.aria-expanded]="mobileMenuOpen()"
+        aria-label="Toggle navigation"
+        (click)="toggleMobileMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category links from API (or placeholders while loading) -->
+  <nav class="main-nav" [class.main-nav--open]="mobileMenuOpen()">
+    <div class="container">
+      <ul class="nav-list">
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileMenu()"
+          >
+            Semua
+          </a>
+        </li>
+        @if (menuItems().length === 0) {
+          <!-- Skeleton nav items — hidden text reserves space -->
+          @for (label of navPlaceholders; track label) {
+            <li class="nav-list__placeholder" aria-hidden="true">
+              <span>{{ label }}</span>
+            </li>
+          }
+        } @else {
+          @for (item of menuItems(); track item.id) {
+            <li>
+              <a
+                [routerLink]="['/category', item.slug]"
+                routerLinkActive="active"
+                (click)="closeMobileMenu()"
+              >
+                {{ item.name }}
+              </a>
+            </li>
+          }
+        }
+      </ul>
+    </div>
+  </nav>
+</header>

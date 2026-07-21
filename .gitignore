@@ -1,0 +1,66 @@
+# ===========================================
+# News Portal — do not commit these files
+# ===========================================
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- IDE & AI tools (Cursor, Copilot, etc.) ---
+.cursor/
+.codex/
+.aider*
+.continue/
+.idea/
+.vscode/
+.zed/
+.nova/
+*.swp
+*.swo
+*~
+
+# --- Environment ---
+# Templates (committed): .env.development + .env.production
+# Active file (not committed): .env — copy from a template
+backend/.env
+frontend/.env
+
+# --- Backend: dependencies ---
+backend/vendor/
+
+# --- Backend: generated / runtime ---
+backend/public/storage
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+backend/storage/*.key
+backend/storage/pail/
+backend/storage/logs/
+backend/storage/framework/cache/data/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/storage/app/public/news/
+
+# --- Backend: test & tool cache ---
+backend/.phpunit.cache/
+backend/.phpunit.result.cache
+backend/.phpactor.json
+backend/_ide_helper.php
+backend/auth.json
+backend/Homestead.json
+backend/Homestead.yaml
+
+# --- Frontend: dependencies & build ---
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# --- Frontend: generated config ---
+frontend/src/app/config/env.config.ts
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

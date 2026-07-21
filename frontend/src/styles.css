@@ -1,0 +1,62 @@
+/* ==========================================================================
+   Global styles — shared across all pages
+   ========================================================================== */
+
+/* Consistent box model for all elements */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  background: #f4f4f4;
+  color: #222;
+  line-height: 1.5;
+  overflow-x: hidden;
+  text-rendering: optimizeSpeed;
+}
+
+/* Responsive media defaults */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+button,
+a {
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Page width wrappers — used in header, list, detail, footer */
+.container,
+.container--narrow {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.container--narrow {
+  max-width: 760px; /* Article detail page */
+}
+
+@media (max-width: 480px) {
+  .container,
+  .container--narrow {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+}

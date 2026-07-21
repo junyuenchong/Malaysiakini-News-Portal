@@ -1,0 +1,113 @@
+<!-- News listing page — data from GET /api/news -->
+<section class="news-page">
+  <div class="container">
+    <header class="page-header">
+      <h1>{{ pageTitle() }}</h1>
+      <p class="page-header__subtitle">Kemas kini berita terkini dari API Laravel</p>
+    </header>
+
+    <div class="news-area">
+      @if (error()) {
+        <!-- API unreachable or server error -->
+        <div class="state-message state-message--error">{{ error() }}</div>
+      } @else if (!loading() && articles().length === 0) {
+        <div class="state-message">Tiada berita dijumpai.</div>
+      } @else {
+        <div class="news-grid" [class.news-grid--loading]="loading()">
+          @if (loading()) {
+            <!-- Skeleton placeholders while fetching -->
+            @for (skeleton of skeletonItems; track skeleton) {
+              <article class="news-card news-card--skeleton" aria-hidden="true">
+                <div class="news-card__image news-card__image--placeholder"></div>
+                <div class="news-card__body">
+                  <div class="skeleton-line skeleton-line--sm"></div>
+                  <div class="skeleton-line skeleton-line--title"></div>
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line skeleton-line--short"></div>
+                  <div class="news-card__footer">
+                    <span class="news-card__badge news-card__badge--hidden">Utama</span>
+                  </div>
+                </div>
+              </article>
+            }
+          } @else {
+            @for (article of articles(); track article.id; let i = $index) {
+              <article class="news-card" [class.news-card--featured]="article.is_featured">
+                <a [routerLink]="['/news', article.id]" class="news-card__image">
+                  @if (article.image_url) {
+                    @if (i === 0) {
+                      <!-- First image loads immediately (LCP) -->
+                      <img
+                        [src]="article.image_url"
+                        [alt]="article.title"
+                        width="800"
+                        height="450"
+                        loading="eager"
+                        fetchpriority="high"
+                        decoding="async"
+                      />
+                    } @else {
+                      <!-- Below-fold images lazy-load -->
+                      <img
+                        [src]="article.image_url"
+                        [alt]="article.title"
+                        width="800"
+                        height="450"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    }
+                  }
+                </a>
+                <div class="news-card__body">
+                  <div class="news-card__meta">
+                    <span class="news-card__category">{{ article.category.name }}</span>
+                    <time [dateTime]="article.published_at">
+                      {{ article.published_at | date: 'dd MMM yyyy, HH:mm' }}
+                    </time>
+                  </div>
+                  <h2 class="news-card__title">
+                    <a [routerLink]="['/news', article.id]">{{ article.title }}</a>
+                  </h2>
+                  <p class="news-card__summary">{{ article.summary }}</p>
+                  <div class="news-card__footer">
+                    <span class="news-card__author">{{ article.author }}</span>
+                    <span
+                      class="news-card__badge"
+                      [class.news-card__badge--hidden]="!article.is_featured"
+                    >
+                      Utama
+                    </span>
+                  </div>
+                </div>
+              </article>
+            }
+          }
+        </div>
+
+        <!-- Pagination — hidden when loading or single page -->
+        <nav
+          class="pagination"
+          [class.pagination--hidden]="loading() || lastPage() <= 1"
+          aria-label="Pagination"
+        >
+          <button
+            type="button"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            Sebelum
+          </button>
+          <span>Halaman {{ currentPage() }} / {{ lastPage() }}</span>
+          <button
+            type="button"
+            [disabled]="currentPage() === lastPage()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Seterusnya
+          </button>
+        </nav>
+      }
+    </div>
+  </div>
+</section>

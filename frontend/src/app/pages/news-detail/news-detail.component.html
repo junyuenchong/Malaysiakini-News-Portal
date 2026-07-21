@@ -1,0 +1,42 @@
+<!-- Single article page — data from GET /api/news/{id} -->
+<section class="detail-page">
+  <div class="container container--narrow">
+    @if (loading()) {
+      <div class="state-message">Memuatkan...</div>
+    } @else if (error()) {
+      <div class="state-message state-message--error">{{ error() }}</div>
+      <a routerLink="/" class="back-link">&larr; Kembali ke senarai</a>
+    } @else if (article()) {
+      <a routerLink="/" class="back-link">&larr; Kembali ke senarai</a>
+
+      <article class="article">
+        <div class="article__meta">
+          <span class="article__category">{{ article()!.category.name }}</span>
+          <time [dateTime]="article()!.published_at">
+            {{ article()!.published_at | date: 'dd MMMM yyyy, HH:mm' }}
+          </time>
+        </div>
+
+        <h1 class="article__title">{{ article()!.title }}</h1>
+        <p class="article__author">Oleh {{ article()!.author }}</p>
+
+        @if (article()!.image_url) {
+          <figure class="article__figure">
+            <!-- NgOptimizedImage with priority — loads hero image first -->
+            <img
+              [ngSrc]="article()!.image_url!"
+              [alt]="article()!.title"
+              width="800"
+              height="450"
+              priority
+            />
+          </figure>
+        }
+
+        <p class="article__summary">{{ article()!.summary }}</p>
+        <!-- HTML content from API (seeded paragraphs) -->
+        <div class="article__content" [innerHTML]="article()!.content"></div>
+      </article>
+    }
+  </div>
+</section>
