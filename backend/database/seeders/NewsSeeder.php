@@ -11,18 +11,17 @@ class NewsSeeder extends Seeder
     public function run(): void
     {
         $categories = Category::query()->get();
+        $total = 100;
+        $base = intdiv($total, $categories->count());
+        $extra = $total % $categories->count();
 
-        foreach ($categories as $category) {
+        // Spread 100 articles evenly (e.g. 6 categories → 17+17+17+17+16+16)
+        foreach ($categories as $index => $category) {
+            $count = $base + ($index < $extra ? 1 : 0);
+
             News::factory()
-                ->count(8)
+                ->count($count)
                 ->create(['category_id' => $category->id]);
         }
-
-        News::factory()
-            ->count(3)
-            ->featured()
-            ->create([
-                'category_id' => $categories->first()->id,
-            ]);
     }
 }
