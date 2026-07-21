@@ -1,35 +1,31 @@
 <?php
 
-namespace Tests\Unit\Projections;
+namespace Tests\Unit\Resources;
 
-use App\Http\Projections\CategoryProjection;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
-/**
- * Unit tests for CategoryProjection.
- */
-class CategoryProjectionTest extends TestCase
+class CategoryResourceTest extends TestCase
 {
-    /** CategoryProjection should expose only the fields needed by the UI. */
     public function test_transforms_category_to_expected_json_shape(): void
     {
         $category = new Category;
         $category->forceFill([
             'id' => 5,
-            'name' => 'Economy',
-            'slug' => 'economy',
+            'name' => 'Business',
+            'slug' => 'business',
             'sort_order' => 2,
             'show_in_menu' => true,
         ]);
 
-        $payload = (new CategoryProjection($category))->resolve(Request::create('/'));
+        $payload = (new CategoryResource($category))->resolve(Request::create('/'));
 
         $this->assertSame([
             'id' => 5,
-            'name' => 'Economy',
-            'slug' => 'economy',
+            'name' => 'Business',
+            'slug' => 'business',
             'sort_order' => 2,
         ], $payload);
 
