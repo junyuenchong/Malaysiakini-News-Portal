@@ -56,13 +56,13 @@ npm start                         # start app → http://localhost:4200
 
 | Method | URL | What it returns |
 | ------ | --- | --------------- |
-| GET | `/api/menu` | Categories for the navigation bar |
 | GET | `/api/categories` | All categories |
+| GET | `/api/categories/{id}/news` | News for one category |
 | GET | `/api/news` | Paginated news list |
 | GET | `/api/news/{id}` | One full article |
 | GET | `/storage/news/{id}.jpg` | Article image |
 
-**News list filters:** `?category=politics&page=1&per_page=12`
+**News list filters:** `?category=world&page=1&per_page=12`
 
 ---
 
@@ -72,11 +72,11 @@ npm start                         # start app → http://localhost:4200
 backend/app/Http/
 ├── Controllers/    # receive HTTP request, call helper
 ├── Helpers/        # query database + cache results
-├── Projections/    # shape the JSON response
-└── Requests/       # validate input (NewsRequest only)
+├── Resources/      # API Resource JSON shaping
+└── Requests/       # validate input
 ```
 
-**Flow:** Request → Controller → Helper → Projection → JSON
+**Flow:** Request → Controller → Helper → Resource → JSON
 
 ---
 

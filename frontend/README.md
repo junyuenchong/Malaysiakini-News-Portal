@@ -25,8 +25,9 @@ npm start                         # start dev server → http://localhost:4200
 
 | Page | API call | What it shows |
 | ---- | -------- | --------------- |
-| Header menu | `GET /api/menu` | Navigation categories |
-| News list | `GET /api/news` | Paginated articles |
+| Navbar menu | `GET /api/categories` | Navigation categories |
+| News list (home) | `GET /api/news` | Latest articles |
+| News list (category) | `GET /api/categories/{id}/news` | Filtered articles |
 | News detail | `GET /api/news/{id}` | Full article + content |
 | Images | from `image_url` field | e.g. `/storage/news/1.jpg` |
 
@@ -70,10 +71,11 @@ Restart `npm start` after changing the API URL.
 
 ```
 src/app/
-├── layout/header/       # top nav — loads GET /api/menu
+├── layout/navbar/           # NavbarComponent — GET /api/categories
+├── components/news-card/    # NewsCardComponent — one article card
 ├── pages/
-│   ├── news-list/       # home page — GET /api/news
-│   └── news-detail/     # article page — GET /api/news/{id}
+│   ├── news-list/           # NewsListComponent — home + category pages
+│   └── news-detail/         # article page — GET /api/news/{id}
 ├── services/            # HTTP calls to Laravel API
 ├── models/              # TypeScript types for API data
 └── config/env.config.ts # API base URL

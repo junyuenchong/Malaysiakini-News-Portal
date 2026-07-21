@@ -32,7 +32,7 @@ Controller      ← thin, calls helper
     ↓
 Helper          ← query DB + cache
     ↓
-Projection      ← build JSON fields
+Resource        ← build JSON fields
     ↓
 JSON Response
 ```
@@ -46,16 +46,17 @@ JSON Response
 ```
 app/Http/
 ├── Controllers/
-│   ├── CategoryController.php    # GET /api/categories, GET /api/menu
+│   ├── CategoryController.php    # GET /api/categories, GET /api/categories/{id}/news
 │   └── NewsController.php        # GET /api/news, GET /api/news/{id}
 ├── Helpers/
 │   ├── JsonCacheHelper.php       # shared cache + JSON response
 │   ├── CategoryHelper.php        # category list + cache
 │   └── NewsHelper.php            # news list/show + cache
-├── Projections/
-│   ├── CategoryProjection.php    # category JSON fields
-│   └── NewsProjection.php        # news JSON fields
+├── Resources/
+│   ├── CategoryResource.php      # category JSON fields
+│   └── NewsResource.php          # news JSON fields
 └── Requests/
+    ├── CategoryNewsRequest.php   # validates category news route + pagination
     └── NewsRequest.php           # validates news list params + article id
 ```
 
@@ -63,10 +64,10 @@ app/Http/
 | ----- | ------------ |
 | Controllers | Entry point — receive request, call helper |
 | Helpers | Database queries, filters, caching |
-| Projections | Which fields appear in the API JSON |
+| Resources | Which fields appear in the API JSON |
 | Requests | Input validation before controller runs |
 
-Category routes have no Form Request (no input to validate).
+Category news route uses `CategoryNewsRequest` for pagination validation.
 
 ---
 
@@ -170,6 +171,7 @@ Images are downloaded by `ImageSeeder` and served via Laravel storage link.
 | ------ | -------- | ----------- |
 | GET | `/api/menu` | Menu categories (`show_in_menu = true`) |
 | GET | `/api/categories` | All categories |
+| GET | `/api/categories/{id}/news` | Paginated news for one category |
 | GET | `/api/news` | Paginated news list |
 | GET | `/api/news/{id}` | Single article with full content |
 
@@ -177,16 +179,17 @@ Images are downloaded by `ImageSeeder` and served via Laravel storage link.
 
 | Param | Example | Default |
 | ----- | ------- | ------- |
-| `category` | `politics` | all |
+| `category` | `world` | all |
 | `page` | `2` | `1` |
 | `per_page` | `20` | `12` (max 50) |
 
 **Try it:**
 
 ```bash
-curl http://localhost:8000/api/menu
+curl http://localhost:8000/api/categories
+curl http://localhost:8000/api/categories/1/news
 curl http://localhost:8000/api/news
-curl http://localhost:8000/api/news?category=politics
+curl http://localhost:8000/api/news?category=world
 curl http://localhost:8000/api/news/1
 curl http://localhost:8000/storage/news/1.jpg
 ```
@@ -196,14 +199,14 @@ curl http://localhost:8000/storage/news/1.jpg
 ## Tests & Quality
 
 ```bash
-composer test          # 18 tests
+composer test          # 20 tests
 composer check         # format + analyse + test
 composer fix           # auto-format with Pint
 ```
 
 | Suite | What it tests |
 | ----- | ------------- |
-| Unit | Models, Projections |
+| Unit | Models, Resources |
 | Feature | API endpoints, ImageSeeder |
 
 Tests use SQLite in memory — Docker not required.
