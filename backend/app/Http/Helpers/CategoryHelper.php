@@ -2,7 +2,7 @@
 
 namespace App\Http\Helpers;
 
-use App\Http\Projections\CategoryProjection;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +36,7 @@ class CategoryHelper
     public static function cachedList(string $cacheKey, ?callable $scope = null): JsonResponse
     {
         return JsonCacheHelper::respond($cacheKey, self::CACHE_TTL, function () use ($scope) {
-            // Select only fields used by CategoryProjection
+            // Select only fields used by CategoryResource
             $query = Category::query()
                 ->select(Category::API_COLUMNS)
                 ->orderBy('sort_order');
@@ -46,7 +46,7 @@ class CategoryHelper
                 $query = $scope($query);
             }
 
-            return CategoryProjection::collection($query->get())->response()->getData(true);
+            return CategoryResource::collection($query->get())->response()->getData(true);
         });
     }
 }

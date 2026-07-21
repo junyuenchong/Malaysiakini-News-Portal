@@ -2,26 +2,20 @@
 
 namespace App\Http\Helpers;
 
-use App\Http\Projections\NewsProjection;
+use App\Http\Resources\NewsResource;
 use App\Models\Category;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 
 /**
  * News query + cache helper.
- *
- * Shared by NewsController index() and show().
- * Keeps DB queries, filters, and cache keys out of the controller.
  */
 class NewsHelper
 {
-    // Cache list responses for 30 seconds
     private const LIST_CACHE_TTL = 30;
 
-    // Browser may cache detail responses longer than app cache
     private const DETAIL_CACHE_MAX_AGE = 60;
 
-    // List endpoint columns (no full article body)
     private const LIST_COLUMNS = [
         'id',
         'category_id',
@@ -34,7 +28,6 @@ class NewsHelper
         'is_featured',
     ];
 
-    // Detail endpoint columns (includes content)
     private const DETAIL_COLUMNS = [
         'id',
         'category_id',
@@ -48,55 +41,40 @@ class NewsHelper
         'is_featured',
     ];
 
-    /**
-     * Return a paginated, cached news list.
-     *
-     * Category filter rules:
-     *   - no slug: return all news
-     *   - valid slug: filter by category_id
-     *   - unknown slug: return empty page (not an error)
-     */
     public static function cachedList(?string $categorySlug, int $page, int $perPage): JsonResponse
     {
         return JsonCacheHelper::respond(
             "news:list:{$categorySlug}:{$page}:{$perPage}",
             self::LIST_CACHE_TTL,
             function () use ($categorySlug, $perPage, $page) {
-                $query = News::query()
-                    ->select(self::LIST_COLUMNS)
-                    ->with(['category:'.implode(',', Category::API_COLUMNS)]);
+                $categoryId = null;
 
                 if ($categorySlug !== null) {
-                    // Resolve slug to id once, then filter by FK
                     $categoryId = Category::query()
                         ->where('slug', $categorySlug)
                         ->value('id');
 
-                    // Unknown slug: return empty paginated result
                     if ($categoryId === null) {
-                        return NewsProjection::collection(
-                            News::query()->whereRaw('0 = 1')->paginate($perPage, ['*'], 'page', $page)
-                        )->response()->getData(true);
+                        return self::emptyPage($page, $perPage);
                     }
-
-                    $query->where('category_id', $categoryId);
                 }
 
-                $news = $query
-                    ->orderByDesc('published_at')
-                    ->paginate($perPage, ['*'], 'page', $page);
-
-                return NewsProjection::collection($news)->response()->getData(true);
+                return self::paginatedList($categoryId, $page, $perPage);
             },
         );
     }
 
-    /**
-     * Return one cached article with full content.
-     *
-     * Uses a separate cache key per article id.
-     * Browser cache can be longer than app cache.
-     */
+    public static function cachedListByCategoryId(int $categoryId, int $page, int $perPage): JsonResponse
+    {
+        Category::query()->findOrFail($categoryId);
+
+        return JsonCacheHelper::respond(
+            "news:category:{$categoryId}:{$page}:{$perPage}",
+            self::LIST_CACHE_TTL,
+            fn () => self::paginatedList($categoryId, $page, $perPage),
+        );
+    }
+
     public static function cachedShow(int $id): JsonResponse
     {
         return JsonCacheHelper::respond(
@@ -108,9 +86,39 @@ class NewsHelper
                     ->with(['category:'.implode(',', Category::API_COLUMNS)])
                     ->findOrFail($id);
 
-                return (new NewsProjection($article))->response()->getData(true);
+                return (new NewsResource($article))->response()->getData(true);
             },
             self::DETAIL_CACHE_MAX_AGE,
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function paginatedList(?int $categoryId, int $page, int $perPage): array
+    {
+        $query = News::query()
+            ->select(self::LIST_COLUMNS)
+            ->with(['category:'.implode(',', Category::API_COLUMNS)]);
+
+        if ($categoryId !== null) {
+            $query->where('category_id', $categoryId);
+        }
+
+        $news = $query
+            ->orderByDesc('published_at')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return NewsResource::collection($news)->response()->getData(true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function emptyPage(int $page, int $perPage): array
+    {
+        return NewsResource::collection(
+            News::query()->whereRaw('0 = 1')->paginate($perPage, ['*'], 'page', $page)
+        )->response()->getData(true);
     }
 }

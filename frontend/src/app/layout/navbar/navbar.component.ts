@@ -1,6 +1,5 @@
 /**
- * Site header with logo and category navigation.
- * Menu items are loaded from GET /api/menu (no hard-coded categories).
+ * Navigation bar — menu items from GET /api/categories.
  */
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -8,33 +7,30 @@ import { CategoryService } from '../../services/category.service';
 import { Category } from '../../models/news.model';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-navbar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css',
+  templateUrl: './navbar.component.html',
+  styleUrl: './navbar.component.css',
 })
-export class HeaderComponent implements OnInit {
+export class NavbarComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
 
   menuItems = signal<Category[]>([]);
   mobileMenuOpen = signal(false);
 
-  /** Placeholder labels shown while the API menu is loading (prevents layout shift) */
-  readonly navPlaceholders = ['Berita Terkini', 'Politik', 'Ekonomi', 'Sukan', 'Opini', 'Video'];
+  readonly navPlaceholders = ['Malaysia', 'World', 'Business', 'Sports', 'Opinion', 'Life'];
 
   ngOnInit(): void {
-    this.categoryService.getMenu().subscribe({
+    this.categoryService.getCategories().subscribe({
       next: (response) => this.menuItems.set(response.data),
     });
   }
 
-  /** Toggle hamburger menu on mobile */
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
   }
 
-  /** Close menu after a link is clicked (mobile UX) */
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
   }

@@ -24,8 +24,8 @@ describe('CategoryService', () => {
     data: [
       {
         id: 1,
-        name: 'Politics',
-        slug: 'politics',
+        name: 'World',
+        slug: 'world',
         sort_order: 1,
       },
       {

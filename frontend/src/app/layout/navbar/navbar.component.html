@@ -1,6 +1,5 @@
-<!-- Site header: red top bar + dark category nav -->
+<!-- Navigation bar — categories from GET /api/categories -->
 <header class="site-header">
-  <!-- Logo + mobile hamburger -->
   <div class="header-top">
     <div class="container header-top__inner">
       <a routerLink="/" class="logo" (click)="closeMobileMenu()">
@@ -21,7 +20,6 @@
     </div>
   </div>
 
-  <!-- Category links from API (or placeholders while loading) -->
   <nav class="main-nav" [class.main-nav--open]="mobileMenuOpen()">
     <div class="container">
       <ul class="nav-list">
@@ -32,11 +30,10 @@
             [routerLinkActiveOptions]="{ exact: true }"
             (click)="closeMobileMenu()"
           >
-            Semua
+            Latest News
           </a>
         </li>
         @if (menuItems().length === 0) {
-          <!-- Skeleton nav items — hidden text reserves space -->
           @for (label of navPlaceholders; track label) {
             <li class="nav-list__placeholder" aria-hidden="true">
               <span>{{ label }}</span>

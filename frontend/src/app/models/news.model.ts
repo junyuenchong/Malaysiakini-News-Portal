@@ -6,7 +6,7 @@
 export interface Category {
   id: number;
   name: string;
-  slug: string; // URL-friendly filter key, e.g. "politics"
+  slug: string; // URL-friendly filter key, e.g. "world"
   sort_order: number;
 }
 
