@@ -29,8 +29,8 @@ describe('NewsService', () => {
     is_featured: true,
     category: {
       id: 10,
-      name: 'Politics',
-      slug: 'politics',
+      name: 'World',
+      slug: 'world',
       sort_order: 1,
     },
   };
@@ -75,7 +75,7 @@ describe('NewsService', () => {
     let responseBody: PaginatedResponse<NewsArticle> | undefined;
 
     // Call the service with a category slug and page number
-    service.getNews('politics', 2).subscribe((response) => {
+    service.getNews('world', 2).subscribe((response) => {
       responseBody = response;
     });
 
@@ -84,7 +84,7 @@ describe('NewsService', () => {
       (req) =>
         req.method === 'GET' &&
         req.url.endsWith('/news') &&
-        req.params.get('category') === 'politics' &&
+        req.params.get('category') === 'world' &&
         req.params.get('page') === '2',
     );
 
@@ -104,10 +104,10 @@ describe('NewsService', () => {
     let secondResponse: PaginatedResponse<NewsArticle> | undefined;
 
     // Two subscriptions with the same key
-    service.getNews('politics', 2).subscribe((response) => {
+    service.getNews('world', 2).subscribe((response) => {
       firstResponse = response;
     });
-    service.getNews('politics', 2).subscribe((response) => {
+    service.getNews('world', 2).subscribe((response) => {
       secondResponse = response;
     });
 
@@ -121,6 +121,25 @@ describe('NewsService', () => {
     // Both subscribers receive the same cached data
     expect(firstResponse).toEqual(paginatedResponse);
     expect(secondResponse).toEqual(paginatedResponse);
+  });
+
+  it('requests category news from the categories endpoint', () => {
+    let responseBody: PaginatedResponse<NewsArticle> | undefined;
+
+    service.getNewsByCategoryId(3, 2).subscribe((response) => {
+      responseBody = response;
+    });
+
+    const request = httpMock.expectOne(
+      (req) =>
+        req.method === 'GET' &&
+        req.url.endsWith('/categories/3/news') &&
+        req.params.get('page') === '2',
+    );
+
+    request.flush(paginatedResponse);
+
+    expect(responseBody).toEqual(paginatedResponse);
   });
 
   /**
