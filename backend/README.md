@@ -15,7 +15,7 @@ composer install                  # install PHP dependencies
 cp .env.development .env          # Windows: copy .env.development .env
 php artisan key:generate          # generate APP_KEY
 php artisan storage:link          # required for /storage/news/ images
-php artisan migrate --seed        # tables + 6 categories + 51 articles + images
+php artisan migrate --seed        # tables + 6 categories + 100 articles + images
 php artisan serve                 # start server → http://localhost:8000
 ```
 
@@ -136,7 +136,7 @@ Run in order:
 
 ```
 CategorySeeder  →  NewsSeeder  →  ImageSeeder
-  6 categories      51 articles     download .jpg files
+  6 categories      100 articles    download .jpg files
 ```
 
 | Task | Command |
