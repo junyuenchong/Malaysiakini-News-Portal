@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Cache;
  * Shared cache + JSON response helper.
  *
  * Used by CategoryHelper and NewsHelper so both follow
- * the same cache and response pattern.
+ * the same cache and response pattern:
+ *   1. Read from app cache (or build on miss)
+ *   2. Return JSON with a browser Cache-Control header
  */
 class JsonCacheHelper
 {
@@ -29,6 +31,7 @@ class JsonCacheHelper
         // Read from cache, or build payload with $resolver
         $payload = Cache::remember($cacheKey, $ttl, $resolver);
 
+        // Tell browsers how long they may reuse this response
         return response()
             ->json($payload)
             ->header('Cache-Control', 'public, max-age='.($maxAge ?? $ttl));
