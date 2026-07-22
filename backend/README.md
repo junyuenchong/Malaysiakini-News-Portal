@@ -132,8 +132,6 @@ Modules keep domain-specific cache logic in `CategoryCache` and `NewsCache`. Sup
 | `news:category:{id}:{page}:{perPage}` | `GET /api/categories/{id}/news` |
 | `news:show:{id}`                      | `GET /api/news/{id}`            |
 
----
-
 ## Docker
 
 Run from `backend/` folder.

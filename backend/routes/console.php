@@ -66,3 +66,4 @@ Artisan::command('seed:run {target : categories, news, images, or all}', functio
 
     return 0;
 })->purpose('Run seeders by name (shortcut for db:seed --class)');
+

@@ -4,7 +4,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NewsService } from '../../services/news.service';
-import { CategoryService } from '../../services/category.service';
 import { NewsCardComponent } from '../../components/news-card/news-card.component';
 import { NewsArticle } from '../../models/news.model';
 
@@ -17,7 +16,6 @@ import { NewsArticle } from '../../models/news.model';
 })
 export class NewsListComponent implements OnInit {
   private readonly newsService = inject(NewsService);
-  private readonly categoryService = inject(CategoryService);
   private readonly route = inject(ActivatedRoute);
 
   articles = signal<NewsArticle[]>([]);
@@ -45,32 +43,9 @@ export class NewsListComponent implements OnInit {
 
     const slug = this.categorySlug();
 
-    if (!slug) {
-      this.newsService.getNews(undefined, page).subscribe({
-        next: (response) => this.handleNewsResponse(response),
-        error: () => this.handleNewsError(),
-      });
-
-      return;
-    }
-
-    this.categoryService.getCategories().subscribe({
-      next: (response) => {
-        const category = response.data.find((item) => item.slug === slug);
-
-        if (!category) {
-          this.articles.set([]);
-          this.currentPage.set(1);
-          this.lastPage.set(1);
-          this.loading.set(false);
-          return;
-        }
-
-        this.newsService.getNewsByCategoryId(category.id, page).subscribe({
-          next: (newsResponse) => this.handleNewsResponse(newsResponse),
-          error: () => this.handleNewsError(),
-        });
-      },
+    // One API call: GET /api/news or GET /api/news?category={slug}
+    this.newsService.getNews(slug, page).subscribe({
+      next: (response) => this.handleNewsResponse(response),
       error: () => this.handleNewsError(),
     });
   }
