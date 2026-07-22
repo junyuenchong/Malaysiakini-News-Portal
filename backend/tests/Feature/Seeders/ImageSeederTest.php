@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Seeders;
 
-use App\Models\News;
+use App\Modules\News\Models\News;
 use Database\Seeders\ImageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -10,12 +10,18 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Tests for ImageSeeder image download and image_url updates.
+ * Integration tests for ImageSeeder.
+ *
+ * Verifies image download, skip-on-exists, and failed-download behaviour
+ * using faked HTTP and storage — no real network calls.
  */
 class ImageSeederTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Use a fake public disk so tests never touch real storage.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -28,6 +34,7 @@ class ImageSeederTest extends TestCase
      */
     public function test_image_seeder_downloads_image_and_sets_local_url(): void
     {
+        // Fake a valid image response (> 1000 bytes)
         Http::fake([
             'picsum.photos/*' => Http::response(str_repeat('x', 1500), 200),
         ]);
@@ -53,6 +60,7 @@ class ImageSeederTest extends TestCase
 
         $this->seed(ImageSeeder::class);
 
+        // No HTTP request should be made
         Http::assertNothingSent();
         $news->refresh();
         $this->assertStringContainsString('/storage/news/'.$news->id.'.jpg', $news->image_url);
@@ -63,6 +71,7 @@ class ImageSeederTest extends TestCase
      */
     public function test_image_seeder_does_not_save_on_failed_download(): void
     {
+        // Response too small — seeder should reject it
         Http::fake([
             'picsum.photos/*' => Http::response('too small', 200),
         ]);

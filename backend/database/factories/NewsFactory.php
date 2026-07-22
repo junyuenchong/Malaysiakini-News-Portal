@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Category;
-use App\Models\News;
+use App\Modules\Category\Models\Category;
+use App\Modules\News\Models\News;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

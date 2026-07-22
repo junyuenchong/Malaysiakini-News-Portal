@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\NewsController;
+use App\Modules\Category\Http\Controllers\CategoryController;
+use App\Modules\News\Http\Controllers\NewsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', [CategoryController::class, 'menu']);

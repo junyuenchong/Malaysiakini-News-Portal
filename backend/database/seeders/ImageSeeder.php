@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\News;
+use App\Modules\News\Models\News;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;

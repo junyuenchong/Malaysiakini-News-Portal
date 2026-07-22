@@ -6,9 +6,10 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <!-- Preconnect to Laravel API host for faster image/API requests -->
-    <link rel="preconnect" href="http://localhost:8000" />
-    <link rel="dns-prefetch" href="http://localhost:8000" />
+    <!--
+      Backend host is configured via src/app/config/env.config.ts (env.apiUrl).
+      We avoid hard-coding any backend URLs here so non-local environments work.
+    -->
   </head>
   <body>
     <!-- Angular bootstraps into this element (see main.ts) -->
