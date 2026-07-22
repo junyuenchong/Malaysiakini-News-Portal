@@ -102,19 +102,34 @@ Restart `npm start` after changing the API URL.
 ## Project Structure
 
 ```
-src/app/
-├── layout/navbar/              # NavbarComponent
-├── components/news-card/       # NewsCardComponent — one article card
-├── pages/
-│   ├── news-list/              # home + category filter
-│   └── news-detail/            # single article page
-├── services/
-│   ├── category.service.ts     # GET /api/categories, /api/menu
-│   └── news.service.ts         # GET /api/news, /api/news/{id}, /api/categories/{id}/news
-├── models/news.model.ts        # TypeScript types for API data
-├── config/env.config.ts        # API base URL (create locally)
-├── app.routes.ts               # route definitions
-└── app.config.ts               # Angular providers
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout/
+│   │   │   └── navbar/             # Top navigation bar (NavbarComponent)
+│   │   ├── components/
+│   │   │   └── news-card/          # Reusable article card (NewsCardComponent)
+│   │   ├── pages/
+│   │   │   ├── news-list/          # Home + /category/:slug (NewsListComponent)
+│   │   │   └── news-detail/        # /news/:id article page (NewsDetailComponent)
+│   │   ├── services/
+│   │   │   ├── category.service.ts # GET /api/categories, /api/menu
+│   │   │   └── news.service.ts     # GET /api/news, /api/news/{id}
+│   │   ├── models/
+│   │   │   └── news.model.ts       # TypeScript types for API data
+│   │   ├── config/
+│   │   │   └── env.config.ts       # API base URL (create locally — gitignored)
+│   │   ├── app.routes.ts           # Route definitions
+│   │   ├── app.config.ts           # Angular providers
+│   │   ├── app.component.ts        # Root component shell
+│   │   └── app.component.html      # Root template (router-outlet)
+│   ├── index.html                  # HTML shell
+│   ├── main.ts                     # App bootstrap
+│   └── styles.css                  # Global styles
+├── scripts/
+│   └── generate-env-config.mjs     # Reads .env → generates env.config.ts
+├── angular.json                    # Angular CLI config
+└── package.json                    # Dependencies + npm scripts
 ```
 
 ---
@@ -125,6 +140,17 @@ src/app/
 npm test                    # unit + integration
 npm run test:unit           # *.unit.spec.ts
 npm run test:integration    # *.integration.spec.ts
+```
+
+```
+src/app/
+├── app.component.unit.spec.ts              # Root component
+├── services/
+│   ├── category.service.unit.spec.ts     # Category HTTP service
+│   └── news.service.unit.spec.ts           # News HTTP service
+└── pages/
+    └── news-list/
+        └── news-list.component.integration.spec.ts  # News list page
 ```
 
 | File                                      | Type        | What it tests         |

@@ -36,7 +36,7 @@ Service           ← business flow (slug resolve, 404)
     ↓
 *Cache            ← domain cache rules + Resource → array
     ↓
-Support helpers   ← shared cache + HTTP helper traits
+CacheService      ← shared getOrStore() wrapper
     ↓
 Repository        ← DB queries + eager loading
     ↓
@@ -50,32 +50,44 @@ JSON Response
 ## App Structure
 
 ```
-app/
-├── Modules/
-│   ├── Category/
-│   │   ├── Http/
-│   │   │   ├── Controllers/CategoryController.php
-│   │   │   ├── Requests/CategoryNewsRequest.php
-│   │   │   └── Resources/CategoryResource.php
-│   │   ├── Services/CategoryService.php
-│   │   ├── Cache/CategoryCache.php
-│   │   ├── Repositories/CategoryRepository.php
-│   │   └── Models/Category.php
-│   └── News/
-│       ├── Http/
-│       │   ├── Controllers/NewsController.php
-│       │   ├── Requests/NewsRequest.php
-│       │   └── Resources/NewsResource.php
-│       ├── Services/NewsService.php
-│       ├── Cache/NewsCache.php
-│       ├── Repositories/NewsRepository.php
-│       └── Models/News.php
-├── Support/
-│   ├── Cache/
-│   │   ├── CacheKey.php        # keys + TTL constants
-│   │   └── CacheService.php    # getOrStore() + jsonWithCacheHeader()
-└── Providers/
-    └── AppServiceProvider.php
+backend/
+├── app/
+│   ├── Modules/                # Domain modules — one folder per feature
+│   │   ├── Category/
+│   │   │   ├── Http/             # API entry — routes hit here first
+│   │   │   │   ├── Controllers/    # Return JSON + Cache-Control headers
+│   │   │   │   ├── Requests/       # Validate query params and route ids
+│   │   │   │   └── Resources/      # Shape API JSON output
+│   │   │   ├── Services/         # Business rules and orchestration
+│   │   │   ├── Cache/            # Category cache keys, TTL, Resource mapping
+│   │   │   ├── Repositories/     # DB queries + eager loading
+│   │   │   └── Models/           # Eloquent model + relationships
+│   │   └── News/
+│   │       ├── Http/             # API entry — routes hit here first
+│   │       │   ├── Controllers/    # Return JSON + Cache-Control headers
+│   │       │   ├── Requests/       # Validate query params and route ids
+│   │       │   └── Resources/      # Shape API JSON output
+│   │       ├── Services/         # Business rules and orchestration
+│   │       ├── Cache/            # News cache keys, TTL, Resource mapping
+│   │       ├── Repositories/     # DB queries + eager loading
+│   │       └── Models/           # Eloquent model + relationships
+│   ├── Support/
+│   │   └── Cache/                # Shared cache helpers used by all modules
+│   │       ├── CacheKey.php        # Cache key builder + TTL constants
+│   │       └── CacheService.php    # getOrStore() + jsonWithCacheHeader()
+│   └── Providers/
+│       └── AppServiceProvider.php  # Laravel service bindings
+├── database/
+│   ├── migrations/               # Table schema (categories, news, …)
+│   ├── seeders/                  # Sample data + image download
+│   └── factories/                # Test data factories
+├── routes/
+│   ├── api.php                   # API route definitions
+│   └── console.php               # Artisan commands (seed shortcuts)
+├── tests/                        # PHPUnit — unit + feature tests
+├── public/                       # Web root (index.php, storage symlink)
+├── config/                       # Laravel config (DB, cache, CORS, …)
+└── storage/                      # Logs, cache files, uploaded images
 ```
 
 | Layer         | What it does                                               |
@@ -260,7 +272,7 @@ curl http://localhost:8000/storage/news/1.jpg
 ## Tests & Quality
 
 ```bash
-composer test          # 24 tests
+composer test          # 23 tests
 composer check         # format + analyse + test
 composer fix           # auto-format with Pint
 composer analyse       # PHPStan
@@ -270,22 +282,22 @@ composer analyse       # PHPStan
 
 ```
 tests/
-├── TestCase.php
-├── Unit/
+├── TestCase.php                  # Base test class
+├── Unit/                         # Isolated class tests (no HTTP)
 │   ├── Modules/
 │   │   ├── Category/
-│   │   │   ├── Models/CategoryTest.php
-│   │   │   └── Resources/CategoryResourceTest.php
+│   │   │   ├── Models/             # Category model casts + relationships
+│   │   │   └── Resources/          # CategoryResource JSON shape
 │   │   └── News/
-│   │       ├── Models/NewsTest.php
-│   │       └── Resources/NewsResourceTest.php
-│   ├── Support/
-│   │   └── Cache/CacheServiceTest.php
-└── Feature/
+│   │       ├── Models/             # News model casts + relationships
+│   │       └── Resources/          # NewsResource JSON shape
+│   └── Support/
+│       └── Cache/                  # CacheService fallback behaviour
+└── Feature/                      # Full HTTP stack tests
     ├── Modules/
-    │   ├── Category/CategoryApiTest.php   # integration — full HTTP stack
-    │   └── News/NewsApiTest.php
-    └── Seeders/ImageSeederTest.php
+    │   ├── Category/               # Category API endpoints
+    │   └── News/                   # News API endpoints
+    └── Seeders/                    # ImageSeeder download/skip/failure
 ```
 
 | Suite           | What it tests                                        |
