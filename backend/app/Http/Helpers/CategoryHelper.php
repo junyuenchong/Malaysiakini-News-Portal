@@ -13,6 +13,10 @@ use Illuminate\Http\JsonResponse;
  * Shared by CategoryController index() and menu().
  * Both routes return the same JSON shape but may use
  * different cache keys and optional query filters.
+ *
+ * Routes:
+ *   GET /api/categories  → cachedList('categories:all')
+ *   GET /api/menu        → cachedList('categories:menu', scope)
  */
 class CategoryHelper
 {
@@ -46,6 +50,7 @@ class CategoryHelper
                 $query = $scope($query);
             }
 
+            // Convert Resource collection → array for caching
             return CategoryResource::collection($query->get())->response()->getData(true);
         });
     }
