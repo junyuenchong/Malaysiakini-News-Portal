@@ -7,7 +7,6 @@ use App\Modules\Category\Models\Category;
 use App\Modules\Category\Repositories\CategoryRepository;
 use App\Support\Cache\CacheKey;
 use App\Support\Cache\CacheService;
-use App\Support\Cache\Concerns\RemembersResourcePayload;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -20,8 +19,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class CategoryCache
 {
-    use RemembersResourcePayload;
-
     public function __construct(
         private readonly CacheService $cache,
         private readonly CategoryRepository $repository,
@@ -36,10 +33,12 @@ class CategoryCache
      */
     public function rememberList(string $key, ?callable $scope = null): array
     {
-        return $this->rememberResource(
+        return $this->cache->getOrStore(
             $key,
             CacheKey::CATEGORY_TTL,
-            fn () => CategoryResource::collection($this->repository->getOrdered($scope)),
+            fn () => CategoryResource::collection($this->repository->getOrdered($scope))
+                ->response()
+                ->getData(true),
         );
     }
 }

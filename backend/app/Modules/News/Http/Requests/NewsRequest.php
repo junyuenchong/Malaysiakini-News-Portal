@@ -2,8 +2,6 @@
 
 namespace App\Modules\News\Http\Requests;
 
-use App\Support\Http\Concerns\MergesRouteId;
-use App\Support\Http\Concerns\PaginatesRequests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -15,9 +13,6 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class NewsRequest extends FormRequest
 {
-    use MergesRouteId;
-    use PaginatesRequests;
-
     /**
      * All news endpoints are public read routes.
      */
@@ -61,5 +56,22 @@ class NewsRequest extends FormRequest
     public function newsId(): int
     {
         return (int) $this->validated('id');
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->route('id') !== null) {
+            $this->merge(['id' => $this->route('id')]);
+        }
+    }
+
+    public function page(): int
+    {
+        return max(1, (int) $this->validated('page', 1));
+    }
+
+    public function perPage(): int
+    {
+        return min(50, max(1, (int) $this->validated('per_page', 12)));
     }
 }

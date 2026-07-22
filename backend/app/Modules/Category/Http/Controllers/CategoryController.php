@@ -7,7 +7,6 @@ use App\Modules\Category\Services\CategoryService;
 use App\Modules\News\Services\NewsService;
 use App\Support\Cache\CacheKey;
 use App\Support\Cache\CacheService;
-use App\Support\Http\Concerns\RespondsWithCachedJson;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -23,8 +22,6 @@ use Illuminate\Http\JsonResponse;
  */
 class CategoryController
 {
-    use RespondsWithCachedJson;
-
     public function __construct(
         private readonly CategoryService $categoryService,
         private readonly NewsService $newsService,
@@ -36,7 +33,7 @@ class CategoryController
      */
     public function index(): JsonResponse
     {
-        return $this->cachedResponse($this->categoryService->getAll(), CacheKey::CATEGORY_TTL);
+        return $this->cache->jsonWithCacheHeader($this->categoryService->getAll(), CacheKey::CATEGORY_TTL);
     }
 
     /**
@@ -44,7 +41,7 @@ class CategoryController
      */
     public function news(CategoryNewsRequest $request): JsonResponse
     {
-        return $this->cachedResponse(
+        return $this->cache->jsonWithCacheHeader(
             $this->newsService->getByCategoryId(
                 $request->categoryId(),
                 $request->page(),
@@ -59,6 +56,6 @@ class CategoryController
      */
     public function menu(): JsonResponse
     {
-        return $this->cachedResponse($this->categoryService->getMenu(), CacheKey::CATEGORY_TTL);
+        return $this->cache->jsonWithCacheHeader($this->categoryService->getMenu(), CacheKey::CATEGORY_TTL);
     }
 }

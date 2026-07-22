@@ -73,14 +73,7 @@ app/
 ├── Support/
 │   ├── Cache/
 │   │   ├── CacheKey.php        # keys + TTL constants
-│   │   ├── CacheService.php    # getOrStore() + jsonWithCacheHeader()
-│   │   └── Concerns/RemembersResourcePayload.php
-│   └── Http/
-│       ├── ResourcePayload.php
-│       └── Concerns/
-│           ├── PaginatesRequests.php
-│           ├── MergesRouteId.php
-│           └── RespondsWithCachedJson.php
+│   │   └── CacheService.php    # getOrStore() + jsonWithCacheHeader()
 └── Providers/
     └── AppServiceProvider.php
 ```
@@ -93,7 +86,6 @@ app/
 | \*Cache       | Domain cache rules, Resource → array on cache miss         |
 | Repositories  | Database queries, filters, eager loading                   |
 | Support/Cache | Generic cache wrapper + key management (shared by modules) |
-| Support/Http  | Shared Resource → array + request/controller traits        |
 | Resources     | Which fields appear in the API JSON                        |
 | Models        | Eloquent models + relationships                            |
 
@@ -288,8 +280,7 @@ tests/
 │   │       ├── Models/NewsTest.php
 │   │       └── Resources/NewsResourceTest.php
 │   ├── Support/
-│   │   ├── Cache/CacheServiceTest.php
-│   │   └── Http/ResourcePayloadTest.php
+│   │   └── Cache/CacheServiceTest.php
 └── Feature/
     ├── Modules/
     │   ├── Category/CategoryApiTest.php   # integration — full HTTP stack
@@ -300,7 +291,7 @@ tests/
 | Suite           | What it tests                                        |
 | --------------- | ---------------------------------------------------- |
 | Unit/Modules    | Model casts, relationships, Resource JSON shape      |
-| Unit/Support    | CacheService fallback and ResourcePayload conversion |
+| Unit/Support    | CacheService fallback                               |
 | Feature/Modules | API endpoints through routing stack                  |
 | Feature/Seeders | ImageSeeder download/skip/failure                    |
 

@@ -6,7 +6,6 @@ use App\Modules\News\Http\Resources\NewsResource;
 use App\Modules\News\Repositories\NewsRepository;
 use App\Support\Cache\CacheKey;
 use App\Support\Cache\CacheService;
-use App\Support\Cache\Concerns\RemembersResourcePayload;
 
 /**
  * News cache layer.
@@ -18,8 +17,6 @@ use App\Support\Cache\Concerns\RemembersResourcePayload;
  */
 class NewsCache
 {
-    use RemembersResourcePayload;
-
     public function __construct(
         private readonly CacheService $cache,
         private readonly NewsRepository $repository,
@@ -71,10 +68,12 @@ class NewsCache
      */
     public function rememberDetail(int $id): array
     {
-        return $this->rememberResource(
+        return $this->cache->getOrStore(
             CacheKey::newsShow($id),
             CacheKey::NEWS_LIST_TTL,
-            fn () => new NewsResource($this->repository->findOrFailWithCategory($id)),
+            fn () => (new NewsResource($this->repository->findOrFailWithCategory($id)))
+                ->response()
+                ->getData(true),
         );
     }
 
@@ -83,10 +82,12 @@ class NewsCache
      */
     private function rememberPaginated(string $key, callable $callback): array
     {
-        return $this->rememberResource(
+        return $this->cache->getOrStore(
             $key,
             CacheKey::NEWS_LIST_TTL,
-            fn () => NewsResource::collection($callback()),
+            fn () => NewsResource::collection($callback())
+                ->response()
+                ->getData(true),
         );
     }
 }
