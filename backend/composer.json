@@ -54,7 +54,6 @@
         "seed:rollback:categories": "@php artisan seed:rollback categories",
         "seed:refresh": "@php artisan seed:refresh",
         "db:refresh": "@php artisan migrate:fresh --seed",
-        "cache:warm": "@php artisan cache:warm",
         "analyse": "phpstan analyse --memory-limit=512M",
         "check": [
             "@format",

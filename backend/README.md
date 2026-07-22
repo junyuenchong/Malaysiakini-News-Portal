@@ -132,14 +132,6 @@ Modules keep domain-specific cache logic in `CategoryCache` and `NewsCache`. Sup
 | `news:category:{id}:{page}:{perPage}` | `GET /api/categories/{id}/news` |
 | `news:show:{id}`                      | `GET /api/news/{id}`            |
 
-**Warm cache** (after seed or deploy):
-
-```bash
-composer cache:warm   # or: php artisan cache:warm
-```
-
-Pre-loads categories, menu, home news, per-category lists, and the first article detail.
-
 ## Docker
 
 Run from `backend/` folder.
@@ -323,7 +315,7 @@ Tests use SQLite in memory — Docker not required.
 | DB connection refused        | `docker compose up -d`                                                  |
 | DB access denied             | Check `.env` matches Docker credentials                                 |
 | Images 404                   | `php artisan storage:link` then `composer seed:images`                  |
-| Slow first request           | Run `composer cache:warm` after seed/start — normal until cache is built |
+| Slow first request           | Normal — cache builds on first hit                                      |
 | `storage` symlink wrong path | Re-run `php artisan storage:link`                                       |
 | Full reset                   | `docker compose down -v && docker compose up -d && composer db:refresh` |
 
