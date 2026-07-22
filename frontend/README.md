@@ -47,7 +47,7 @@ npm start                         # start dev server → http://localhost:4200
 | ------------- | ------------------------------------------------------- | -------------------------------------------- |
 | Navbar        | `GET /api/categories`                                   | Navigation categories                        |
 | Home (`/`)    | `GET /api/news`                                         | Latest articles                              |
-| Category page | `GET /api/categories` + `GET /api/categories/{id}/news` | Resolves slug → id, then loads category news |
+| Category page | `GET /api/news?category={slug}` | Filtered articles in one request |
 | News detail   | `GET /api/news/{id}`                                    | Full article + content                       |
 | Images        | from `image_url` field                                  | e.g. `/storage/news/1.jpg`                   |
 

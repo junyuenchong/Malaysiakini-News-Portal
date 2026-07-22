@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Cache\ApiCacheWarmer;
 use Database\Seeders\CategoryRevertSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\ImageRevertSeeder;
@@ -66,3 +67,13 @@ Artisan::command('seed:run {target : categories, news, images, or all}', functio
 
     return 0;
 })->purpose('Run seeders by name (shortcut for db:seed --class)');
+
+Artisan::command('cache:warm', function (ApiCacheWarmer $warmer) {
+    $this->components->info('Warming API cache...');
+
+    $warmer->warm();
+
+    $this->components->info('API cache warmed.');
+
+    return 0;
+})->purpose('Pre-load common API cache keys for faster first request');

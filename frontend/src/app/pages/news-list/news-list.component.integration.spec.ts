@@ -6,14 +6,12 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { NewsListComponent } from './news-list.component';
 import { NewsService } from '../../services/news.service';
-import { CategoryService } from '../../services/category.service';
 import { PaginatedResponse, NewsArticle } from '../../models/news.model';
 
 describe('NewsListComponent', () => {
   let fixture: ComponentFixture<NewsListComponent>;
   let component: NewsListComponent;
   let newsService: jasmine.SpyObj<NewsService>;
-  let categoryService: jasmine.SpyObj<CategoryService>;
   let params$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
   const article: NewsArticle = {
@@ -53,14 +51,12 @@ describe('NewsListComponent', () => {
   beforeEach(async () => {
     params$ = new BehaviorSubject(convertToParamMap({}));
 
-    newsService = jasmine.createSpyObj<NewsService>('NewsService', ['getNews', 'getNewsByCategoryId']);
-    categoryService = jasmine.createSpyObj<CategoryService>('CategoryService', ['getCategories']);
+    newsService = jasmine.createSpyObj<NewsService>('NewsService', ['getNews']);
 
     await TestBed.configureTestingModule({
       imports: [NewsListComponent],
       providers: [
         { provide: NewsService, useValue: newsService },
-        { provide: CategoryService, useValue: categoryService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -89,20 +85,7 @@ describe('NewsListComponent', () => {
   });
 
   it('reloads for a category route and shows the API error state when loading fails', () => {
-    newsService.getNews.and.returnValue(of(response));
-    categoryService.getCategories.and.returnValue(
-      of({
-        data: [
-          {
-            id: 7,
-            name: 'World',
-            slug: 'world',
-            sort_order: 1,
-          },
-        ],
-      }),
-    );
-    newsService.getNewsByCategoryId.and.returnValue(throwError(() => new Error('Request failed')));
+    newsService.getNews.and.returnValue(throwError(() => new Error('Request failed')));
 
     fixture.detectChanges();
 
@@ -112,7 +95,7 @@ describe('NewsListComponent', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     expect(component.pageTitle()).toBe('World');
-    expect(newsService.getNewsByCategoryId).toHaveBeenCalledWith(7, 1);
+    expect(newsService.getNews).toHaveBeenCalledWith('world', 1);
     expect(element.querySelector('.state-message--error')?.textContent).toContain('Failed to load news');
   });
 });

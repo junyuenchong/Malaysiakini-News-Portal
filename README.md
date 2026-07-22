@@ -195,6 +195,7 @@ composer check              # format + analyse + test
 composer test               # run PHPUnit
 composer db:refresh         # reset DB + reseed everything
 composer seed:images          # download article images
+composer cache:warm           # pre-load API cache (faster first page load)
 php artisan serve             # start API server
 ```
 
