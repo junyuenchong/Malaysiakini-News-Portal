@@ -67,38 +67,58 @@ npm start                         # start app → http://localhost:4200
 
 ---
 
+## Project Structure
+
+```
+News Portal Assessment/
+├── backend/                    # Laravel 13 REST API
+├── frontend/                   # Angular 19 SPA
+└── README.md                   # This file — project overview
+```
+
+---
+
 ## Backend Architecture
 
 Module-based layout — each domain owns its HTTP layer, services, cache, repository, and model.
 
 ```
-backend/app/
-├── Modules/
-│   ├── Category/
-│   │   ├── Http/           # Controllers, Requests, Resources
-│   │   ├── Services/      # Business rules + orchestration
-│   │   ├── Cache/         # Category cache rules + Resource mapping
-│   │   ├── Repositories/ # DB queries + eager loading (N+1 prevention)
-│   │   └── Models/        # Eloquent model + relationships
-│   └── News/
-│       ├── Http/           # Controllers, Requests, Resources
-│       ├── Services/       # Business rules + orchestration
-│       ├── Cache/          # News cache rules + Resource mapping
-│       ├── Repositories/  # DB queries + eager loading (N+1 prevention)
-│       └── Models/         # Eloquent model + relationships
-├── Support/
-│   ├── Cache/
-│   │   ├── CacheKey.php               # Cache key builder + TTL constants
-│   │   ├── CacheService.php           # getOrStore() + jsonWithCacheHeader()
-│   │   └── Concerns/RemembersResourcePayload.php # Shared Resource → array cache helper
-│   └── Http/
-│       ├── ResourcePayload.php        # Converts Resources into plain arrays
-│       └── Concerns/
-│           ├── PaginatesRequests.php        # Shared page/perPage accessors
-│           ├── MergesRouteId.php            # Copy route id into request payload
-│           └── RespondsWithCachedJson.php  # Shared cached JSON response helper
-└── Providers/
-    └── AppServiceProvider.php          # Laravel service provider
+backend/
+├── app/
+│   ├── Modules/                # Domain modules (Category, News)
+│   │   ├── Category/
+│   │   │   ├── Http/           # API entry — routes hit here first
+│   │   │   │   ├── Controllers/  # Return JSON + Cache-Control headers
+│   │   │   │   ├── Requests/     # Validate query params and route ids
+│   │   │   │   └── Resources/    # Shape API JSON output
+│   │   │   ├── Services/       # Business rules and orchestration
+│   │   │   ├── Cache/          # Category cache keys, TTL, Resource mapping
+│   │   │   ├── Repositories/   # DB queries + eager loading
+│   │   │   └── Models/         # Eloquent model + relationships
+│   │   └── News/
+│   │       ├── Http/           # API entry — routes hit here first
+│   │       │   ├── Controllers/  # Return JSON + Cache-Control headers
+│   │       │   ├── Requests/     # Validate query params and route ids
+│   │       │   └── Resources/    # Shape API JSON output
+│   │       ├── Services/       # Business rules and orchestration
+│   │       ├── Cache/          # News cache keys, TTL, Resource mapping
+│   │       ├── Repositories/   # DB queries + eager loading
+│   │       └── Models/         # Eloquent model + relationships
+│   ├── Support/
+│   │   └── Cache/              # Shared cache helpers used by all modules
+│   │       ├── CacheKey.php      # Cache key builder + TTL constants
+│   │       └── CacheService.php  # getOrStore() + jsonWithCacheHeader()
+│   └── Providers/
+│       └── AppServiceProvider.php  # Laravel service bindings
+├── database/
+│   ├── migrations/             # Table schema (categories, news, …)
+│   ├── seeders/                # Sample data + image download
+│   └── factories/              # Test data factories
+├── routes/
+│   ├── api.php                 # API route definitions
+│   └── console.php             # Artisan commands (seed shortcuts)
+├── tests/                      # PHPUnit — unit + feature tests
+└── public/                     # Web root (index.php, storage symlink)
 ```
 
 **Request flow:**
@@ -106,35 +126,48 @@ backend/app/
 ```
 HTTP Request
     ↓
+FormRequest     ← validate query params / route id
+    ↓
 Controller      ← JSON response + Cache-Control header
     ↓
 Service         ← business rules (slug resolve, 404)
     ↓
-*Cache          ← domain cache rules + Resource mapping
+*Cache          ← domain cache rules + Resource → array
     ↓
-Support layer   ← shared cache + HTTP helper traits
+CacheService    ← shared getOrStore() wrapper
     ↓
-Repository      ← DB queries + eager loading (N+1 prevention)
+Repository      ← DB queries + eager loading
     ↓
 JSON Response
 ```
 
-**Why `Support/`?** Shared infrastructure used by multiple modules. Keeps cache mechanics out of domain modules while `CategoryCache` / `NewsCache` own domain-specific rules.
+**Why `Support/`?** Shared infrastructure used by multiple modules. Right now it only holds the generic cache wrapper; each module keeps its own cache rules in `CategoryCache` / `NewsCache`.
 
 ---
 
 ## Frontend Architecture
 
 ```
-src/app/
-├── layout/navbar/           # navigation
-├── components/news-card/    # article card
-├── pages/
-│   ├── news-list/           # home + /category/:slug
-│   └── news-detail/         # /news/:id
-├── services/                # HTTP clients (shareReplay cache)
-├── models/                  # TypeScript API types
-└── config/env.config.ts     # API base URL (create locally — gitignored)
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout/
+│   │   │   └── navbar/         # Top navigation bar
+│   │   ├── components/
+│   │   │   └── news-card/      # Reusable article card
+│   │   ├── pages/
+│   │   │   ├── news-list/      # Home + /category/:slug
+│   │   │   └── news-detail/    # /news/:id article page
+│   │   ├── services/           # HTTP clients (shareReplay cache)
+│   │   ├── models/             # TypeScript API types
+│   │   ├── config/             # env.config.ts — API base URL (gitignored)
+│   │   ├── app.routes.ts       # Route definitions
+│   │   └── app.config.ts       # Angular providers
+│   ├── index.html              # HTML shell
+│   ├── main.ts                 # App bootstrap
+│   └── styles.css              # Global styles
+└── scripts/
+    └── generate-env-config.mjs # Reads .env → generates env.config.ts
 ```
 
 **Routes:** `/` · `/category/:slug` · `/news/:id`
@@ -157,7 +190,7 @@ src/app/
 
 ```bash
 cd backend
-composer test          # 24 tests — unit + integration
+composer test          # 23 tests — unit + integration
 composer check         # format + analyse + test
 ```
 
