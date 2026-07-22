@@ -6,7 +6,6 @@ use App\Modules\News\Http\Requests\NewsRequest;
 use App\Modules\News\Services\NewsService;
 use App\Support\Cache\CacheKey;
 use App\Support\Cache\CacheService;
-use App\Support\Http\Concerns\RespondsWithCachedJson;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -22,8 +21,6 @@ use Illuminate\Http\JsonResponse;
  */
 class NewsController
 {
-    use RespondsWithCachedJson;
-
     public function __construct(
         private readonly NewsService $newsService,
         private readonly CacheService $cache,
@@ -37,7 +34,7 @@ class NewsController
      */
     public function index(NewsRequest $request): JsonResponse
     {
-        return $this->cachedResponse(
+        return $this->cache->jsonWithCacheHeader(
             $this->newsService->getList(
                 $request->categorySlug(),
                 $request->page(),
@@ -54,7 +51,7 @@ class NewsController
      */
     public function show(NewsRequest $request): JsonResponse
     {
-        return $this->cachedResponse(
+        return $this->cache->jsonWithCacheHeader(
             $this->newsService->getById($request->newsId()),
             CacheKey::NEWS_DETAIL_MAX_AGE,
         );
