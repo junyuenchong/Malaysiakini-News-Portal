@@ -76,7 +76,7 @@ backend/
 │   │       ├── CacheKey.php        # Cache key builder + TTL constants
 │   │       └── CacheService.php    # getOrStore() + jsonWithCacheHeader()
 │   └── Providers/
-│       └── AppServiceProvider.php  # Laravel service bindings
+│       └── AppServiceProvider.php  # Shared bindings + app startup config
 ├── database/
 │   ├── migrations/               # Table schema (categories, news, …)
 │   ├── seeders/                  # Sample data + image download
@@ -115,6 +115,19 @@ Routes are defined in `routes/api.php`.
 | `CacheService` | `getOrStore()` wrapper + `jsonWithCacheHeader()` with `Cache-Control` |
 
 Modules keep domain-specific cache logic in `CategoryCache` and `NewsCache`. Support stays generic — no Category or News business rules.
+
+---
+
+## AppServiceProvider
+
+`app/Providers/AppServiceProvider.php` holds **reusable app-wide setup** — not Category/News business rules.
+
+| Method       | What it does                                                                 |
+| ------------ | ---------------------------------------------------------------------------- |
+| `register()` | Binds `CacheService` as a **singleton** — one shared instance for the app    |
+| `boot()`     | `Model::preventLazyLoading()` in local/testing — catches N+1 queries early |
+
+Domain logic stays in Modules. Provider only wires shared tools and safety checks.
 
 ---
 
