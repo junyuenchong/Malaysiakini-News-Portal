@@ -109,7 +109,7 @@ backend/
 │   │       ├── CacheKey.php      # Cache key builder + TTL constants
 │   │       └── CacheService.php  # getOrStore() + jsonWithCacheHeader()
 │   └── Providers/
-│       └── AppServiceProvider.php  # Laravel service bindings
+│       └── AppServiceProvider.php  # Shared bindings + app startup config
 ├── database/
 │   ├── migrations/             # Table schema (categories, news, …)
 │   ├── seeders/                # Sample data + image download
